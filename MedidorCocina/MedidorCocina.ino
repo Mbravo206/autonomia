@@ -242,6 +242,7 @@ void revisarBotones() {
   if (millis() - ultimoBoton < 500) return;  // Evita lecturas dobles
   if (digitalRead(BOTON_CERO) == LOW) {
     ultimoBoton = millis();
+    beepTono(60, TONO_CERO);                 // Clic inmediato: la persona sabe que el botón se pulsó
     if (!SIMULAR && !SOLO_NFC) {
       if (!celdaLista) return;               // Sin celda no hay cero que poner (ya se avisa el error)
       if (pesoActual > MAX_PESO_CERO) {      // Demasiado peso: seguramente hay ingrediente encima
@@ -372,7 +373,7 @@ void loop() {
           pesoRef = peso;
           pitar();
           Serial.print("PESO:");
-          Serial.println(meta > 0 ? meta : (int)round(peso));
+          Serial.println((int)round(peso));  // Peso real medido (Processing lo redondea a 10 g al decirlo)
         } else {
           inicioEstable = millis();          // Falta ingrediente: sigue esperando
         }

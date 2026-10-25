@@ -27,7 +27,8 @@ Lector NFC (opcional) ──┤        │
    - Sin ficha: un tic corto cada 10 g.
 5. Se queda quieto 2 s: pitido largo y la voz dice el peso.
 6. Si se pasa de la meta (más de 10 g): tres pitidos graves y «Te pasaste».
-7. El **botón de ayuda** repite qué hacer. Mientras mide, dice «Llevas X de Y gramos»; si se pasó, «Te pasaste por X gramos».
+7. Si se queda quieta 15 s, Processing repite la ayuda de ese momento (máximo 2 veces). Pulsar cero corta la bienvenida.
+8. El **botón de ayuda** repite qué hacer. Mientras mide, dice «Llevas X de Y gramos»; si se pasó, «Te pasaste por X gramos».
 
 ### Estados del Arduino
 
@@ -106,7 +107,7 @@ Si el número baja al poner peso, intercambia A+ con A−.
 | `FACTOR` | Calibración de la balanza (hoy 1124) |
 | `BUZZER_PASIVO` | `false` si el buzzer es activo |
 
-En Processing, con `SIMULAR = true` las teclas 1 a 9 simulan los mensajes (espera, midiendo, pesos, meta, pasado, ayuda, cero).
+En Processing, con `SIMULAR = true` las teclas 1 a 9 simulan los mensajes (espera, midiendo, pesos, meta, pasado, ayuda, cero). Con cualquier modo, las teclas `+` y `-` hacen la voz más rápida o más lenta (0.8 a 1.6).
 
 ### Fichas NFC
 

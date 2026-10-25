@@ -24,6 +24,11 @@ Serial puerto;
 ArrayList<String> cola = new ArrayList<String>();   // Nombres de archivo en espera
 SoundFile sonando = null;
 int finClip = 0;                                    // millis() en que termina el clip actual
+float velocidadVoz = 1.0;                           // 1.0 = normal. Teclas + y - la cambian (0.8 a 1.6)
+final int ESPERA_RECORDATORIO = 15000;              // ms sin actividad antes de repetir la ayuda
+final int MAX_RECORDATORIOS = 2;                    // veces que repite antes de callar
+int ultimaActividad = 0;                            // millis() del último mensaje del Arduino
+int recordatorios = 0;
 
 // Estado de la interfaz
 String estado = "ESPERA";                     // ESPERA, MIDIENDO, LISTO o PASADO
@@ -44,6 +49,7 @@ void setup() {
     puerto.clear();
   }
   decir("bienvenida.wav");                    // Audio de bienvenida al abrir
+  ultimaActividad = millis();
 }
 
 void draw() {
@@ -61,9 +67,17 @@ void draw() {
     SoundFile s = clip(cola.remove(0));
     if (s != null) {
       sonando = s;
-      s.play();
-      finClip = millis() + (int)(s.duration() * 1000) + 100;   // No arranca otro hasta que termine este
+      s.play(velocidadVoz);
+      finClip = millis() + (int)(s.duration() * 1000 / velocidadVoz) + 100;   // No arranca otro hasta que termine este
     }
+  }
+
+  // Si la persona se queda quieta, repite la ayuda de ese momento (máximo 2 veces)
+  if (millis() - ultimaActividad > ESPERA_RECORDATORIO && recordatorios < MAX_RECORDATORIOS
+      && millis() >= finClip && cola.size() == 0) {
+    recordatorios++;
+    ultimaActividad = millis();
+    decir(archivoAyuda());
   }
 
   pesoAnim = lerp(pesoAnim, pesoObjetivo, 0.12);
@@ -172,6 +186,8 @@ color colorEstado() {
 // ------------------------------------------------------------ LÓGICA / AUDIO
 
 void keyPressed() {
+  if (key == '+') velocidadVoz = min(1.6, velocidadVoz + 0.1);   // Voz más rápida
+  if (key == '-') velocidadVoz = max(0.8, velocidadVoz - 0.1);   // Voz más lenta
   if (!SIMULAR) return;
   if (key == '1') procesar("ESPERA");
   if (key == '2') procesar("MIDIENDO");
@@ -187,6 +203,10 @@ void keyPressed() {
 void procesar(String linea) {
   if (linea.length() == 0) return;
   println("Arduino: " + linea);
+  if (!linea.startsWith("G:")) {              // Cualquier mensaje (menos el diagnóstico) cuenta como actividad
+    ultimaActividad = millis();
+    recordatorios = 0;
+  }
   if (linea.equals("ESPERA")) {
     cambiar("ESPERA", "Pon el ingrediente en la pesa");
     if (primeraEspera) primeraEspera = false;   // Arranque: deja terminar la bienvenida
