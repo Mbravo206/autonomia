@@ -24,10 +24,12 @@ MFRC522 rfid(10, 9);                         // SS = 10, RST = 9
 // ---- Ajustes ----
 const float FACTOR = 1124.0;                 // Calibrado con Calibracion.ino (iPhone 13, 174 g)
 const int BUZZER = 8;
-const int BOTON_CERO  = 4;                   // Botón grande: pone la balanza en cero (con la taza puesta)
-const int BOTON_AYUDA = 5;                   // Botón de ayuda
+const int BOTON_CERO  = 4;                   // Botón de la DERECHA: pone la balanza en cero (con la taza puesta)
+const int BOTON_AYUDA = 5;                   // Botón de la IZQUIERDA: ayuda
+const bool CONFIRMAR_BOTONES = true;         // true = el primer toque dice qué es el botón y el segundo lo ejecuta
+const unsigned long VENTANA_CONFIRMAR = 6000; // ms para dar el segundo toque
 const bool BUZZER_PASIVO = true;             // true si con HIGH no suena (usa tone)
-const bool USAR_NFC = false;                 // true cuando el lector RC522 está conectado
+const bool USAR_NFC = true;                  // true cuando el lector RC522 está conectado
 const bool SOLO_NFC = false;                 // true = demo SIN balanza: la ficha simula el peso (requiere USAR_NFC)
 const bool SIMULAR = false;                  // true = SIN balanza ni lector: todo desde el Monitor Serie
                                              //   peso: escribe 230 y Enter (0 = retirar)
@@ -76,6 +78,8 @@ unsigned long inicioEstable = 0;
 unsigned long ultimoPitido = 0;              // Para el pitido progresivo
 unsigned long ultimoDebug = 0;
 unsigned long ultimoBoton = 0;               // Para ignorar rebotes de los botones
+unsigned long anuncioCero = 0;               // Cuándo se anunció el botón de cero (0 = no anunciado)
+unsigned long anuncioAyuda = 0;              // Cuándo se anunció el botón de ayuda
 unsigned long ultimaLectura = 0;             // Cuándo respondió la celda por última vez
 unsigned long ultimoError = 0;               // Cuándo sonó el último aviso de error de la celda
 
@@ -168,7 +172,7 @@ void aplicarMeta(int g) {
   if (!SOLO_NFC && g == meta) {              // Misma ficha otra vez: cancela la meta (medida libre)
     meta = 0;
     Serial.println("META:0");
-    Serial.println("ESPERA");
+    Serial.println("META_CANCELADA");        // Processing dice "Ya no tienes meta"
     beep(80);
     delay(100);
     beep(80);                                // Dos pitidos cortos: meta cancelada
@@ -243,6 +247,12 @@ void revisarBotones() {
   if (digitalRead(BOTON_CERO) == LOW) {
     ultimoBoton = millis();
     beepTono(60, TONO_CERO);                 // Clic inmediato: la persona sabe que el botón se pulsó
+    if (CONFIRMAR_BOTONES && (anuncioCero == 0 || millis() - anuncioCero > VENTANA_CONFIRMAR)) {
+      anuncioCero = millis();                // Primer toque: dice qué es el botón
+      Serial.println("BOTON_CERO");
+      return;
+    }
+    anuncioCero = 0;                         // Segundo toque: lo ejecuta
     if (!SIMULAR && !SOLO_NFC) {
       if (!celdaLista) return;               // Sin celda no hay cero que poner (ya se avisa el error)
       if (pesoActual > MAX_PESO_CERO) {      // Demasiado peso: seguramente hay ingrediente encima
@@ -259,7 +269,14 @@ void revisarBotones() {
   } else if (digitalRead(BOTON_AYUDA) == LOW) {
     ultimoBoton = millis();
     beepTono(80, TONO_AYUDA);
-    if (estado == MIDIENDO || estado == PASADO) {
+    bool midiendo = (estado == MIDIENDO || estado == PASADO);
+    if (CONFIRMAR_BOTONES && !midiendo && (anuncioAyuda == 0 || millis() - anuncioAyuda > VENTANA_CONFIRMAR)) {
+      anuncioAyuda = millis();               // Primer toque: dice qué es el botón (midiendo, la ayuda es directa)
+      Serial.println("BOTON_AYUDA");
+      return;
+    }
+    anuncioAyuda = 0;
+    if (midiendo) {
       Serial.print("LLEVA:");                // "Llevas X de Y gramos" / "Te pasaste por X gramos"
       Serial.println((int)round(pesoActual));
     } else {

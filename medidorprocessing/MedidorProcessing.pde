@@ -1,10 +1,11 @@
 // AUTONOMÍA / Sendero Sonoro - Estación Medidor
-// Lee el serial del Arduino, reproduce los .mp3 (carpeta "data") y muestra la interfaz.
+// Lee el serial del Arduino, reproduce los audios (.wav o .mp3, carpeta "data") y muestra la interfaz.
 // Librería: Sound. Cierra el Monitor Serie del Arduino IDE antes de correr.
 //
 // MODO SIMULACIÓN (SIMULAR = true): no necesita Arduino. Teclas:
 //   1 = ESPERA    2 = MIDIENDO    3 = PESO:100    4 = PESO:500    5 = PESO:250
-//   6 = META:100  7 = PASADO
+//   6 = META:100  7 = PASADO      8 = AYUDA       9 = CERO
+// En cualquier modo: + y - hacen la voz más rápida o más lenta.
 import processing.serial.*;
 import processing.sound.*;
 
@@ -48,7 +49,7 @@ void setup() {
     puerto = new Serial(this, PUERTO, 9600);  // Al abrirlo, el Arduino se reinicia (y hace tare)
     puerto.clear();
   }
-  decir("bienvenida.wav");                    // Audio de bienvenida al abrir
+  decir("bienvenida.wav", "ubicacion.wav");   // Bienvenida y dónde están las cosas
   ultimaActividad = millis();
 }
 
@@ -73,7 +74,8 @@ void draw() {
   }
 
   // Si la persona se queda quieta, repite la ayuda de ese momento (máximo 2 veces)
-  if (millis() - ultimaActividad > ESPERA_RECORDATORIO && recordatorios < MAX_RECORDATORIOS
+  int desde = max(ultimaActividad, finClip);   // Cuenta el silencio desde el final de lo último que sonó
+  if (millis() - desde > ESPERA_RECORDATORIO && recordatorios < MAX_RECORDATORIOS
       && millis() >= finClip && cola.size() == 0) {
     recordatorios++;
     ultimaActividad = millis();
@@ -221,11 +223,21 @@ void procesar(String linea) {
       if (hay("meta_" + meta + ".mp3")) decir("meta_" + meta + ".mp3");
       else decir("espera.mp3");
     }
+  } else if (linea.equals("BOTON_CERO")) {
+    frase = "Botón de cero. Púlsalo de nuevo";
+    decir("boton_cero.wav");
+  } else if (linea.equals("BOTON_AYUDA")) {
+    frase = "Botón de ayuda. Púlsalo de nuevo";
+    decir("boton_ayuda.wav");
+  } else if (linea.equals("META_CANCELADA")) {
+    cambiar("ESPERA", "Ya no tienes meta");
+    decir("meta_cancelada.wav");
   } else if (linea.equals("CERO")) {
     cambiar("ESPERA", "Balanza en cero. Echa el ingrediente");
     decir("cero.wav");
   } else if (linea.equals("AYUDA")) {
-    decir(archivoAyuda());
+    if (estado.equals("ESPERA")) decir(archivoAyuda(), "ubicacion.wav");   // Esperando: también dice dónde están las cosas
+    else decir(archivoAyuda());
   } else if (linea.startsWith("LLEVA:")) {
     decirLleva(int(linea.substring(6)));
   } else if (linea.equals("ERROR:CELDA")) {
@@ -241,7 +253,7 @@ void procesar(String linea) {
     frase = "Retira la taza";
     decir("retira_taza.wav");
   } else if (linea.equals("PASADO")) {
-    cambiar("PASADO", "Te pasaste");
+    cambiar("PASADO", "Te pasaste. Quita peso");
     decir("te pasaste.mp3");
   } else if (linea.startsWith("PESO:")) {
     int g = int(linea.substring(5));

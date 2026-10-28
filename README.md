@@ -20,7 +20,7 @@ Lector NFC (opcional) ──┤        │
 ### Lo que vive la persona
 
 1. Escucha la bienvenida al abrir el programa.
-2. Pone la taza vacía y pulsa el **botón de cero**: la balanza descuenta la taza.
+2. Pone la taza vacía y pulsa **dos veces** el **botón de cero** (el de la derecha, al frente): el primer toque dice qué botón es y el segundo pone la balanza en cero, descontando la taza.
 3. (Opcional) Acerca una **ficha** NFC para elegir un peso (100 g o 250 g). Con la misma ficha otra vez se cancela la meta.
 4. Echa el ingrediente poco a poco.
    - Con ficha: el pitido se acelera y sube de tono hasta un tono continuo en la meta.
@@ -28,7 +28,7 @@ Lector NFC (opcional) ──┤        │
 5. Se queda quieto 2 s: pitido largo y la voz dice el peso.
 6. Si se pasa de la meta (más de 10 g): tres pitidos graves y «Te pasaste».
 7. Si se queda quieta 15 s, Processing repite la ayuda de ese momento (máximo 2 veces). Pulsar cero corta la bienvenida.
-8. El **botón de ayuda** repite qué hacer. Mientras mide, dice «Llevas X de Y gramos»; si se pasó, «Te pasaste por X gramos».
+8. El **botón de ayuda** (el de la izquierda, también con doble toque) repite qué hacer. Si está esperando, también dice dónde están las cosas. Mientras mide, dice «Llevas X de Y gramos»; si se pasó, «Te pasaste por X gramos».
 
 ### Estados del Arduino
 
@@ -63,7 +63,7 @@ Cada sonido tiene su tono: los graves son avisos y los agudos son confirmaciones
 | Sonido | Significa |
 |---|---|
 | Pitido de arranque | El Arduino encendió |
-| Pitido (botón grande) | Balanza en cero |
+| Pitido (botón de cero, derecha) | Balanza en cero |
 | Pitido corto (ficha) | Ficha leída |
 | Un tic cada 10 g | Sin ficha: va llenando |
 | Pitidos que se aceleran | Con ficha: se acerca a la meta |
@@ -81,8 +81,8 @@ Cada sonido tiene su tono: los graves son avisos y los agudos son confirmaciones
 | HX711 | VCC / GND / DT / SCK | 5V / GND / 2 / 3 |
 | Celda → HX711 | rojo / negro / blanco / verde | E+ / E− / A− / A+ |
 | Buzzer | + / otro | 8 / GND |
-| Botón de cero | un lado | 4 (el otro lado a GND) |
-| Botón de ayuda | un lado | 5 (el otro lado a GND) |
+| Botón de cero (derecha) | un lado | 4 (el otro lado a GND) |
+| Botón de ayuda (izquierda) | un lado | 5 (el otro lado a GND) |
 | RC522 (opcional) | SDA / SCK / MOSI / MISO / RST | 10 / 13 / 11 / 12 / 9 |
 | RC522 | 3.3V / GND | 3.3V (**nunca 5V**) / GND |
 
@@ -94,7 +94,7 @@ Si el número baja al poner peso, intercambia A+ con A−.
 2. Espera el pitido de arranque (ahí toma el cero).
 3. Cierra el Monitor Serie del Arduino IDE.
 4. Abre `medidorprocessing/MedidorProcessing.pde` con `SIMULAR = false` y el `PUERTO` correcto (librería **Sound**).
-5. Pon la taza y pulsa el botón de cero.
+5. Pon la taza y pulsa dos veces el botón de cero (primer toque: dice qué es; segundo: lo ejecuta).
 
 ### Interruptores del código (arriba de `MedidorCocina.ino`)
 
@@ -127,6 +127,8 @@ Con `USAR_NFC = true`, acerca la ficha y copia el `TAG:xxxxxxxx` del Monitor Ser
 | `MedidorCocina/` | Código final del Arduino |
 | `medidorprocessing/` | Interfaz y voz; audios en `data/` (voz sintética en `.wav`) |
 | `Calibracion/` | Calcula el `FACTOR` con un peso conocido |
+| `Guia-Montaje-Medidor.html` | Guía ilustrada: montaje de la balanza, conexiones y distribución en la caja (también en `.png`) |
+| `Evaluacion-Heuristica-Medidor.xlsx` | Evaluación heurística de usabilidad |
 | `PruebaCelda/` | Comprueba que el HX711 y la celda funcionan |
 | `PruebaBuzzer/` | Comprueba el buzzer (pasivo o activo) |
 | `audios_originales/` | Copia de los primeros audios en mp3 |

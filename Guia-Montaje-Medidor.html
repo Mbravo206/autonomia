@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de montaje del Medidor</title>
+<style>
+  :root {
+    --bg: #fbfaf6;
+    --fg: #1d2030;
+    --soft: #5c6178;
+    --line: #dcdbd2;
+    --panel: #ffffff;
+    --accent: #3b4fd8;
+    --amber: #b86e00;
+    --wood: #dfb985;
+    --wood-dark: #b98a52;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: "Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+    font-size: 17px; line-height: 1.5;
+    padding: 40px 20px 72px;
+  }
+  main { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: clamp(2rem, 6vw, 2.8rem); line-height: 1.05; margin: 0 0 8px; }
+  h2 { font-size: 1.5rem; margin: 52px 0 6px; padding-top: 8px; border-top: 2px solid var(--line); }
+  .sub { color: var(--soft); max-width: 62ch; margin: 0 0 24px; }
+  .nota { color: var(--soft); font-size: .95rem; margin: 0 0 16px; }
+  figure { margin: 0 0 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; overflow-x: auto; }
+  figure svg { display: block; width: 100%; height: auto; min-width: 560px; }
+  figcaption { color: var(--soft); font-size: .92rem; padding: 8px 4px 0; }
+  ol.pasos { padding-left: 24px; display: flex; flex-direction: column; gap: 8px; }
+  ul.lista { padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+  .aviso { border-left: 5px solid var(--amber); background: #fff6e6; padding: 10px 16px; border-radius: 4px; margin: 16px 0; }
+  table { border-collapse: collapse; width: 100%; background: var(--panel); border: 1px solid var(--line); }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  th { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
+  .tabla { overflow-x: auto; border-radius: 10px; }
+  code { background: #eeece4; border-radius: 4px; padding: 1px 6px; font-size: .9em; }
+  svg text { font-family: "Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif; fill: #1d2030; }
+  @media print { body { padding: 0; } h2 { break-after: avoid; } figure { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Guía de montaje del Medidor</h1>
+  <p class="sub">Cómo armar la balanza, cómo conectar cada pieza al Arduino UNO y cómo distribuir todo en la caja de madera. Ábrela en el navegador, o imprímela (Ctrl+P) para tenerla en la mesa de trabajo.</p>
+
+  <h2>1. Montaje de la balanza</h2>
+  <p class="nota">Vista lateral. La clave: la plataforma <b>flota</b> sobre la base, apoyada solo en la celda.</p>
+  <figure>
+    <svg viewBox="0 0 760 380" role="img" aria-label="Vista lateral del montaje: base, celda de carga con separadores y plataforma con aro para la taza">
+      <defs>
+        <marker id="flecha" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d2030"/></marker>
+      </defs>
+      <!-- base -->
+      <rect x="60" y="300" width="640" height="30" fill="#dfb985" stroke="#8a6335" stroke-width="2"/>
+      <!-- separador izquierdo -->
+      <rect x="110" y="272" width="70" height="28" fill="#c8ccd4" stroke="#6b7180" stroke-width="2"/>
+      <!-- celda -->
+      <rect x="110" y="242" width="420" height="30" fill="#9aa1ab" stroke="#4a505c" stroke-width="2"/>
+      <rect x="250" y="250" width="140" height="14" fill="#b9bec7" stroke="#4a505c" stroke-width="1"/>
+      <!-- separador derecho (arriba de la celda) -->
+      <rect x="460" y="214" width="70" height="28" fill="#c8ccd4" stroke="#6b7180" stroke-width="2"/>
+      <!-- plataforma -->
+      <rect x="230" y="188" width="470" height="26" fill="#dfb985" stroke="#8a6335" stroke-width="2"/>
+      <!-- tornillos -->
+      <line x1="145" y1="258" x2="145" y2="322" stroke="#1d2030" stroke-width="5"/>
+      <rect x="133" y="252" width="24" height="7" fill="#1d2030"/>
+      <line x1="495" y1="184" x2="495" y2="272" stroke="#1d2030" stroke-width="5"/>
+      <rect x="483" y="178" width="24" height="7" fill="#1d2030"/>
+      <!-- aro y taza -->
+      <rect x="394" y="170" width="14" height="18" fill="#b98a52" stroke="#8a6335" stroke-width="1.5"/>
+      <rect x="516" y="170" width="14" height="18" fill="#b98a52" stroke="#8a6335" stroke-width="1.5"/>
+      <path d="M410,120 h104 v62 q0,6 -6,6 h-92 q-6,0 -6,-6 z" fill="#ffffff" stroke="#5c6178" stroke-width="2"/>
+      <!-- peso -->
+      <line x1="462" y1="50" x2="462" y2="112" stroke="#1d2030" stroke-width="3" marker-end="url(#flecha)"/>
+      <text x="474" y="76" font-size="15">peso</text>
+      <!-- espacio libre -->
+      <line x1="640" y1="214" x2="640" y2="300" stroke="#d62f3a" stroke-width="2" marker-start="url(#flecha)" marker-end="url(#flecha)"/>
+      <text x="650" y="254" font-size="14" style="fill:#d62f3a">espacio libre:</text>
+      <text x="650" y="272" font-size="14" style="fill:#d62f3a">no debe tocar</text>
+      <!-- etiquetas -->
+      <text x="60" y="358" font-size="15">Base de madera</text>
+      <text x="40" y="204" font-size="15" text-anchor="start">Celda de carga</text>
+      <text x="40" y="222" font-size="13" style="fill:#5c6178">(flecha hacia abajo)</text>
+      <text x="40" y="296" font-size="15" text-anchor="start" style="fill:#5c6178">separador</text>
+      <text x="540" y="238" font-size="15" style="fill:#5c6178">separador</text>
+      <text x="236" y="176" font-size="15">Plataforma</text>
+      <text x="360" y="154" font-size="15" text-anchor="end">aro para</text>
+      <text x="360" y="172" font-size="15" text-anchor="end">la taza</text>
+      <text x="462" y="146" font-size="15" text-anchor="middle" style="fill:#5c6178">taza</text>
+      <text x="150" y="346" font-size="14" style="fill:#5c6178">tornillo</text>
+    </svg>
+    <figcaption>Un extremo de la celda va fijo a la base; el otro extremo, fijo a la plataforma. Los separadores crean el espacio para que la celda se flexione.</figcaption>
+  </figure>
+
+  <ol class="pasos">
+    <li><b>Mira la flecha impresa en la celda.</b> Debe apuntar hacia abajo, hacia donde cae el peso.</li>
+    <li><b>Fija un extremo a la base,</b> con el separador (una tuerca o arandela gruesa) entre la celda y la madera.</li>
+    <li><b>Fija el otro extremo a la plataforma,</b> con el separador entre la celda y la plataforma. Este extremo queda libre del lado de la base.</li>
+    <li><b>Aprieta los tornillos solo lo justo.</b> Si aprietas de más, o si el tornillo es muy largo y toca la base, fuerzas la celda y las lecturas se vuelven locas.</li>
+    <li><b>Comprueba que la plataforma no toque la base ni la caja</b> en ningún punto. Pasa un papel por debajo para verificarlo.</li>
+    <li><b>Pon patas de goma</b> bajo la base y <b>fija los cables de la celda</b> con cinta, para que no tiren de la plataforma.</li>
+    <li><b>Marca el centro</b> de la plataforma con el aro para la taza: así la taza siempre queda centrada.</li>
+  </ol>
+
+  <h2>2. Conexiones al Arduino UNO</h2>
+  <p class="nota">La balanza (HX711 y celda) a la izquierda, el lector NFC (RC522) a la derecha. El RC522 va a <b>3.3V</b>, nunca a 5V.</p>
+  <figure>
+    <svg viewBox="0 0 1000 560" role="img" aria-label="Diagrama de conexiones del Arduino UNO con el HX711, la celda de carga y el lector RC522">
+      <!-- Arduino -->
+      <rect x="380" y="100" width="240" height="330" rx="10" fill="#d9eef0" stroke="#1c7f8a" stroke-width="3"/>
+      <text x="500" y="80" font-size="20" text-anchor="middle" font-weight="700">Arduino UNO</text>
+      <!-- pines izquierda -->
+      <g font-size="15" text-anchor="start">
+        <text x="392" y="170">D2</text><text x="392" y="210">D3</text><text x="392" y="250">5V</text><text x="392" y="290">GND</text>
+      </g>
+      <!-- pines derecha -->
+      <g font-size="15" text-anchor="end">
+        <text x="608" y="150">D10</text><text x="608" y="185">D13</text><text x="608" y="220">D11</text><text x="608" y="255">D12</text><text x="608" y="290">D9</text><text x="608" y="325">3.3V</text><text x="608" y="360">GND</text>
+      </g>
+      <!-- HX711 -->
+      <rect x="60" y="130" width="200" height="190" rx="8" fill="#e8ecff" stroke="#3b4fd8" stroke-width="3"/>
+      <text x="160" y="116" font-size="19" text-anchor="middle" font-weight="700">HX711</text>
+      <g font-size="15" text-anchor="end">
+        <text x="248" y="170">DT</text><text x="248" y="210">SCK</text><text x="248" y="250">VCC</text><text x="248" y="290">GND</text>
+      </g>
+      <!-- líneas HX711 - Arduino -->
+      <line x1="260" y1="166" x2="380" y2="166" stroke="#3b4fd8" stroke-width="4"/>
+      <line x1="260" y1="206" x2="380" y2="206" stroke="#8a5cd6" stroke-width="4"/>
+      <line x1="260" y1="246" x2="380" y2="246" stroke="#d62f3a" stroke-width="4"/>
+      <line x1="260" y1="286" x2="380" y2="286" stroke="#1d2030" stroke-width="4"/>
+      <!-- celda -->
+      <rect x="60" y="440" width="200" height="90" rx="8" fill="#eceef2" stroke="#4a505c" stroke-width="3"/>
+      <text x="160" y="490" font-size="18" text-anchor="middle" font-weight="700">Celda de carga</text>
+      <g font-size="14" text-anchor="middle">
+        <text x="85" y="338">E+</text><text x="135" y="338">E−</text><text x="185" y="338">A−</text><text x="235" y="338">A+</text>
+      </g>
+      <line x1="85" y1="320" x2="85" y2="440" stroke="#d62f3a" stroke-width="5"/>
+      <line x1="135" y1="320" x2="135" y2="440" stroke="#1d2030" stroke-width="5"/>
+      <line x1="185" y1="320" x2="185" y2="440" stroke="#8d9097" stroke-width="5"/>
+      <line x1="185" y1="320" x2="185" y2="440" stroke="#ffffff" stroke-width="2"/>
+      <line x1="235" y1="320" x2="235" y2="440" stroke="#2e9e5b" stroke-width="5"/>
+      <g font-size="12" text-anchor="start" style="fill:#5c6178">
+        <text x="93" y="400">rojo</text><text x="143" y="400">negro</text><text x="193" y="400">blanco</text><text x="243" y="400">verde</text>
+      </g>
+      <!-- RC522 -->
+      <rect x="740" y="120" width="200" height="300" rx="8" fill="#ffefe0" stroke="#b86e00" stroke-width="3"/>
+      <text x="840" y="106" font-size="19" text-anchor="middle" font-weight="700">RC522 (NFC)</text>
+      <g font-size="15" text-anchor="start">
+        <text x="752" y="150">SDA</text><text x="752" y="185">SCK</text><text x="752" y="220">MOSI</text><text x="752" y="255">MISO</text><text x="752" y="290">RST</text><text x="752" y="325">3.3V</text><text x="752" y="360">GND</text><text x="752" y="395" style="fill:#8a8fa3">IRQ (libre)</text>
+      </g>
+      <!-- líneas Arduino - RC522 -->
+      <line x1="620" y1="146" x2="740" y2="146" stroke="#b86e00" stroke-width="4"/>
+      <line x1="620" y1="181" x2="740" y2="181" stroke="#b86e00" stroke-width="4"/>
+      <line x1="620" y1="216" x2="740" y2="216" stroke="#b86e00" stroke-width="4"/>
+      <line x1="620" y1="251" x2="740" y2="251" stroke="#b86e00" stroke-width="4"/>
+      <line x1="620" y1="286" x2="740" y2="286" stroke="#b86e00" stroke-width="4"/>
+      <line x1="620" y1="321" x2="740" y2="321" stroke="#d62f3a" stroke-width="4"/>
+      <line x1="620" y1="356" x2="740" y2="356" stroke="#1d2030" stroke-width="4"/>
+      <text x="840" y="470" font-size="15" text-anchor="middle" style="fill:#d62f3a">¡3.3V, no 5V!</text>
+    </svg>
+    <figcaption>Los cables de la celda al HX711 van a E+, E−, A− y A+. Si al poner peso el número baja, cambia el blanco con el verde.</figcaption>
+  </figure>
+
+  <p class="nota">Buzzer y botones. Cada botón va entre su pin y GND, sin resistencia.</p>
+  <figure>
+    <svg viewBox="0 0 760 400" role="img" aria-label="Conexión del buzzer y de los dos botones al Arduino">
+      <rect x="60" y="30" width="640" height="56" rx="8" fill="#d9eef0" stroke="#1c7f8a" stroke-width="3"/>
+      <text x="80" y="64" font-size="18" font-weight="700">Arduino UNO</text>
+      <g font-size="16" text-anchor="middle">
+        <text x="250" y="64">D8</text><text x="390" y="64">D4</text><text x="530" y="64">D5</text><text x="650" y="64">GND</text>
+      </g>
+      <!-- rail GND -->
+      <line x1="80" y1="340" x2="680" y2="340" stroke="#1d2030" stroke-width="5"/>
+      <text x="80" y="366" font-size="15" style="fill:#5c6178">GND</text>
+      <line x1="650" y1="86" x2="650" y2="340" stroke="#1d2030" stroke-width="5"/>
+      <!-- buzzer -->
+      <rect x="205" y="170" width="90" height="70" rx="8" fill="#eceef2" stroke="#4a505c" stroke-width="3"/>
+      <text x="250" y="200" font-size="16" text-anchor="middle" font-weight="700">Buzzer</text>
+      <text x="250" y="222" font-size="13" text-anchor="middle" style="fill:#5c6178">+ arriba</text>
+      <line x1="250" y1="86" x2="250" y2="170" stroke="#d62f3a" stroke-width="4"/>
+      <line x1="250" y1="240" x2="250" y2="340" stroke="#1d2030" stroke-width="4"/>
+      <!-- botón cero -->
+      <rect x="335" y="170" width="110" height="70" rx="8" fill="#ffe3e5" stroke="#d62f3a" stroke-width="3"/>
+      <text x="390" y="200" font-size="16" text-anchor="middle" font-weight="700">Botón</text>
+      <text x="390" y="222" font-size="14" text-anchor="middle">cero (derecha)</text>
+      <line x1="390" y1="86" x2="390" y2="170" stroke="#8a5cd6" stroke-width="4"/>
+      <line x1="390" y1="240" x2="390" y2="340" stroke="#1d2030" stroke-width="4"/>
+      <!-- botón ayuda -->
+      <rect x="475" y="170" width="110" height="70" rx="8" fill="#e3ecff" stroke="#3b6fd8" stroke-width="3"/>
+      <text x="530" y="200" font-size="16" text-anchor="middle" font-weight="700">Botón</text>
+      <text x="530" y="222" font-size="14" text-anchor="middle">ayuda (izquierda)</text>
+      <line x1="530" y1="86" x2="530" y2="170" stroke="#2e9e5b" stroke-width="4"/>
+      <line x1="530" y1="240" x2="530" y2="340" stroke="#1d2030" stroke-width="4"/>
+    </svg>
+    <figcaption>Con un pulsador de 4 patas, usa dos patas en diagonal: una al pin del Arduino y la otra a GND.</figcaption>
+  </figure>
+
+  <div class="tabla">
+  <table>
+    <tr><th>Pin del Arduino</th><th>Va a</th></tr>
+    <tr><td>D2</td><td>HX711 · DT</td></tr>
+    <tr><td>D3</td><td>HX711 · SCK</td></tr>
+    <tr><td>D4</td><td>Botón de cero</td></tr>
+    <tr><td>D5</td><td>Botón de ayuda</td></tr>
+    <tr><td>D8</td><td>Buzzer (+)</td></tr>
+    <tr><td>D9, D10, D11, D12, D13</td><td>RC522 · RST, SDA, MOSI, MISO, SCK</td></tr>
+    <tr><td>5V</td><td>HX711 · VCC</td></tr>
+    <tr><td>3.3V</td><td>RC522 · 3.3V</td></tr>
+    <tr><td>GND</td><td>GND del HX711, del RC522, del buzzer y de los botones</td></tr>
+  </table>
+  </div>
+
+  <h2>3. Distribución en la caja de madera</h2>
+  <p class="nota">Dónde hacer los huecos. Tres vistas de la caja.</p>
+  <figure>
+    <svg viewBox="0 0 900 360" role="img" aria-label="Tres vistas de la caja: superior, frontal y lateral, con la ubicación de los huecos">
+      <!-- vista superior -->
+      <text x="150" y="30" font-size="17" text-anchor="middle" font-weight="700">Vista superior</text>
+      <rect x="30" y="50" width="240" height="250" rx="6" fill="#dfb985" stroke="#8a6335" stroke-width="3"/>
+      <rect x="70" y="70" width="160" height="150" fill="#f1dcba" stroke="#8a6335" stroke-width="2" stroke-dasharray="6 4"/>
+      <circle cx="150" cy="145" r="42" fill="none" stroke="#b98a52" stroke-width="8"/>
+      <circle cx="150" cy="145" r="30" fill="#ffffff" stroke="#5c6178" stroke-width="2"/>
+      <text x="150" y="150" font-size="13" text-anchor="middle">taza</text>
+      <text x="150" y="240" font-size="13" text-anchor="middle" style="fill:#5c6178">plataforma</text>
+      <rect x="236" y="58" width="30" height="64" rx="4" fill="#f6e8d0" stroke="#8a6335" stroke-width="2"/>
+      <line x1="244" y1="66" x2="244" y2="114" stroke="#8a6335" stroke-width="2"/><line x1="251" y1="66" x2="251" y2="114" stroke="#8a6335" stroke-width="2"/><line x1="258" y1="66" x2="258" y2="114" stroke="#8a6335" stroke-width="2"/>
+      <text x="251" y="136" font-size="12" text-anchor="middle">NFC</text>
+      <rect x="92" y="252" width="26" height="26" rx="4" fill="#3b6fd8" stroke="#1e3f8a" stroke-width="2"/>
+      <circle cx="105" cy="265" r="3" fill="#ffffff"/>
+      <circle cx="195" cy="265" r="14" fill="#d62f3a" stroke="#7a1b22" stroke-width="2"/>
+      <text x="105" y="294" font-size="12" text-anchor="middle">ayuda</text>
+      <text x="195" y="294" font-size="12" text-anchor="middle">cero</text>
+      <text x="150" y="322" font-size="13" text-anchor="middle" style="fill:#5c6178">lector NFC por dentro, a la derecha y al fondo</text>
+      <!-- frente -->
+      <text x="450" y="30" font-size="17" text-anchor="middle" font-weight="700">Frente</text>
+      <rect x="330" y="50" width="240" height="130" rx="6" fill="#dfb985" stroke="#8a6335" stroke-width="3"/>
+      <rect x="385" y="100" width="30" height="30" rx="5" fill="#3b6fd8" stroke="#1e3f8a" stroke-width="3"/>
+      <circle cx="400" cy="115" r="3" fill="#ffffff"/>
+      <text x="400" y="152" font-size="13" text-anchor="middle">ayuda (izquierda)</text>
+      <circle cx="500" cy="115" r="30" fill="#d62f3a" stroke="#7a1b22" stroke-width="3"/>
+      <text x="500" y="121" font-size="14" text-anchor="middle" style="fill:#fff">cero</text>
+      <text x="500" y="170" font-size="13" text-anchor="middle">cero (derecha)</text>
+      <text x="450" y="205" font-size="13" text-anchor="middle" style="fill:#5c6178">distintos de forma y tamaño</text>
+      <text x="450" y="223" font-size="13" text-anchor="middle" style="fill:#5c6178">para encontrarlos al tacto</text>
+      <!-- lateral -->
+      <text x="760" y="30" font-size="17" text-anchor="middle" font-weight="700">Lateral</text>
+      <rect x="650" y="50" width="220" height="130" rx="6" fill="#dfb985" stroke="#8a6335" stroke-width="3"/>
+      <rect x="670" y="105" width="44" height="22" rx="3" fill="#1d2030"/>
+      <text x="692" y="146" font-size="13" text-anchor="middle">USB</text>
+      <g fill="#8a6335">
+        <circle cx="770" cy="84" r="4"/><circle cx="788" cy="84" r="4"/><circle cx="806" cy="84" r="4"/><circle cx="824" cy="84" r="4"/>
+        <circle cx="770" cy="102" r="4"/><circle cx="788" cy="102" r="4"/><circle cx="806" cy="102" r="4"/><circle cx="824" cy="102" r="4"/>
+        <circle cx="770" cy="120" r="4"/><circle cx="788" cy="120" r="4"/><circle cx="806" cy="120" r="4"/><circle cx="824" cy="120" r="4"/>
+      </g>
+      <text x="797" y="146" font-size="13" text-anchor="middle">agujeros del buzzer</text>
+    </svg>
+    <figcaption>Los botones al frente o junto a la plataforma, fuera de ella, para que pulsarlos no mueva la balanza.</figcaption>
+  </figure>
+
+  <ul class="lista">
+    <li><b>Botones:</b> los dos al frente, delante del lector: el de <b>ayuda a la izquierda</b> y el de <b>cero a la derecha</b>. Cada uno con una textura distinta (uno rugoso, otro con un punto en relieve).</li>
+    <li><b>USB:</b> en un lateral, lejos de los botones.</li>
+    <li><b>Buzzer:</b> con agujeritos taladrados delante. Si queda tapado, se oye apagado.</li>
+    <li><b>Lector NFC:</b> pegado por dentro de la tapa, a la <b>derecha y al fondo</b> de la caja, a 1 o 2 cm de la ficha. La madera no lo bloquea. Aléjalo del metal (tornillos grandes, la celda).</li>
+    <li><b>Marca táctil:</b> una ranura o un hueco poco profundo donde apoyar la ficha.</li>
+  </ul>
+
+  <div class="aviso"><b>Ningún hueco ni refuerzo debe dejar que la plataforma roce la tapa.</b> Si roza, la balanza se vuelve loca. Si la tapa es delgada, refuérzala con otra tabla debajo de la celda.</div>
+
+  <h2>4. Comprobar que quedó bien</h2>
+  <ol class="pasos">
+    <li>Con todo <b>vacío</b>, sube <code>PruebaCelda.ino</code> y abre el Monitor Serie. El valor debe quedarse casi quieto.</li>
+    <li>Pon un peso en el <b>centro</b> y luego en una <b>esquina</b>. No debería cambiar más de unos gramos.</li>
+    <li>Calibra con <code>Calibracion.ino</code> y un peso exacto (por ejemplo, una botella de 500 ml). Copia el <code>FACTOR</code> a <code>MedidorCocina.ino</code>.</li>
+    <li>Sube <code>MedidorCocina.ino</code>. Debes oír un pitido de arranque. Con <code>USAR_NFC = true</code> debe aparecer <code>Firmware Version: 0x92</code>.</li>
+    <li>Pon la taza vacía, pulsa dos veces el botón de cero (derecha) y echa un peso conocido. Cierra el Monitor Serie y abre Processing para la voz.</li>
+  </ol>
+
+  <p class="nota" style="margin-top:40px">Medidor · AUTONOMÍA / Sendero Sonoro. Las medidas de la caja y los colores de los botones son una sugerencia: ajústalos a lo que tengas.</p>
+</main>
+</body>
+</html>
