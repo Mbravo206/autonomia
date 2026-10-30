@@ -1,5 +1,5 @@
 // MEDIDOR DE COCINA - Arduino UNO + HX711 + buzzer (pin 8) + 2 botones + lector NFC RC522 (opcional)
-// Manda por serial: ESPERA, MIDIENDO, PESO:250, META:100, PASADO, CERO, AYUDA, LLEVA:60,
+// Manda por serial: ESPERA, MIDIENDO, PESO:250, META:100, FALTA:60, PASADO:20, CERO, AYUDA, LLEVA:60,
 //                   ERROR:CELDA, ERROR:FICHA, AVISO:CERO, AVISO:RETIRA, TAG:xxxxxxxx
 //
 // CÓMO SE USA:
@@ -76,6 +76,8 @@ float pesoTick = 0;                          // Peso en el que sonó el último 
 bool celdaLista = false;                     // true cuando el HX711 ya respondió y se hizo el cero
 unsigned long inicioEstable = 0;
 unsigned long ultimoPitido = 0;              // Para el pitido progresivo
+unsigned long ultimoAnuncioFalta = 0;        // Cuándo se dijo por última vez cuánto falta
+float faltanteAnunciado = 0;                 // Cuánto faltaba en ese último anuncio
 unsigned long ultimoDebug = 0;
 unsigned long ultimoBoton = 0;               // Para ignorar rebotes de los botones
 unsigned long anuncioCero = 0;               // Cuándo se anunció el botón de cero (0 = no anunciado)
@@ -133,6 +135,18 @@ void pitidoProgreso(float peso) {
   if (millis() - ultimoPitido >= intervalo) {
     ultimoPitido = millis();
     sonidoTono(60, 1200 + (int)(1000 * avance));                   // Sube de 1200 a 2200 Hz
+  }
+}
+
+// Con meta: de vez en cuando manda cuánto falta para que Processing lo diga ("Faltan 60 gramos").
+// Solo habla si el faltante cambió al menos 20 g desde el último aviso, y no más de uno cada 3 s.
+void anunciarFalta(float peso) {
+  float faltante = meta - peso;
+  if (millis() - ultimoAnuncioFalta >= 3000 && fabs(faltante - faltanteAnunciado) >= 20.0) {
+    ultimoAnuncioFalta = millis();
+    faltanteAnunciado = faltante;
+    Serial.print("FALTA:");
+    Serial.println((int)round(faltante));
   }
 }
 
@@ -222,6 +236,7 @@ void empezarAMedir(float peso) {
   estado = MIDIENDO;
   pesoRef = peso;
   pesoTick = peso;
+  faltanteAnunciado = meta;                  // El primer aviso llega cuando ya falte 20 g menos que la meta
   inicioEstable = millis();
   Serial.println("MIDIENDO");
 }
@@ -370,6 +385,7 @@ void loop() {
     case MIDIENDO:
       if (meta > 0 && peso >= UMBRAL_RETIRO && peso <= meta + MARGEN_META) {
         pitidoProgreso(peso);                // Con meta: pitido que se acelera hacia la meta
+        if (peso < meta - MARGEN_META) anunciarFalta(peso);   // y dice cuánto falta
       } else if (meta == 0 && peso >= UMBRAL_RETIRO) {
         pitidoLibre(peso);                   // Sin meta: un tic cada 10 g
       }
@@ -379,7 +395,8 @@ void loop() {
       } else if (meta > 0 && peso > meta + MARGEN_META) {
         estado = PASADO;                     // Se pasaron de la meta
         alertaPasado();
-        Serial.println("PASADO");
+        Serial.print("PASADO:");             // Con cuánto se pasó de la meta: Processing dice cuánto quitar
+        Serial.println((int)round(peso - meta));
       } else if (fabs(peso - pesoRef) > TOLERANCIA) {
         pesoRef = peso;                      // Aún cambia: reinicia el conteo
         inicioEstable = millis();

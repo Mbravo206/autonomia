@@ -197,7 +197,7 @@ void keyPressed() {
   if (key == '4') procesar("PESO:500");
   if (key == '5') procesar("PESO:250");
   if (key == '6') procesar("META:100");
-  if (key == '7') procesar("PASADO");
+  if (key == '7') procesar("PASADO:30");
   if (key == '8') procesar("AYUDA");
   if (key == '9') procesar("CERO");
 }
@@ -236,8 +236,7 @@ void procesar(String linea) {
     cambiar("ESPERA", "Balanza en cero. Echa el ingrediente");
     decir("cero.wav");
   } else if (linea.equals("AYUDA")) {
-    if (estado.equals("ESPERA")) decir(archivoAyuda(), "ubicacion.wav");   // Esperando: también dice dónde están las cosas
-    else decir(archivoAyuda());
+    decir(archivoAyuda());
   } else if (linea.startsWith("LLEVA:")) {
     decirLleva(int(linea.substring(6)));
   } else if (linea.equals("ERROR:CELDA")) {
@@ -252,9 +251,30 @@ void procesar(String linea) {
   } else if (linea.equals("AVISO:RETIRA")) {
     frase = "Retira la taza";
     decir("retira_taza.wav");
-  } else if (linea.equals("PASADO")) {
+  } else if (linea.startsWith("FALTA:")) {
+    int falta = int(linea.substring(6));
+    if (estado.equals("MIDIENDO") && falta > 0) {
+      ArrayList<String> clips = new ArrayList<String>();
+      clips.add(archivo("faltan"));
+      agregarNumero(clips, falta);
+      clips.add(archivo("gramos"));
+      frase = "Faltan " + round(falta / 10.0) * 10 + " gramos";
+      decir(clips.toArray(new String[0]));
+    }
+  } else if (linea.equals("PASADO") || linea.startsWith("PASADO:")) {
+    int sobra = linea.length() > 7 ? int(linea.substring(7)) : 0;   // gramos sobre la meta
     cambiar("PASADO", "Te pasaste. Quita peso");
-    decir("te pasaste.mp3");
+    if (sobra > 0) {
+      int quita = max(10, round(sobra / 10.0) * 10);
+      ArrayList<String> clips = new ArrayList<String>();
+      clips.add(archivo("te_pasaste_quita"));
+      agregarNumero(clips, quita);
+      clips.add(archivo("gramos"));
+      frase = "Te pasaste. Quita " + quita + " gramos";
+      decir(clips.toArray(new String[0]));
+    } else {
+      decir("te pasaste.mp3");
+    }
   } else if (linea.startsWith("PESO:")) {
     int g = int(linea.substring(5));
     pesoObjetivo = g;

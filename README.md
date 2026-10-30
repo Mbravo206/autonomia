@@ -26,9 +26,9 @@ Lector NFC (opcional) ──┤        │
    - Con ficha: el pitido se acelera y sube de tono hasta un tono continuo en la meta.
    - Sin ficha: un tic corto cada 10 g.
 5. Se queda quieto 2 s: pitido largo y la voz dice el peso.
-6. Si se pasa de la meta (más de 10 g): tres pitidos graves y «Te pasaste».
+6. Con meta, mientras llena, dice cuánto falta («Faltan 60 gramos»). Si se pasa (más de 10 g): tres pitidos graves y «Te pasaste. Quita 30 gramos».
 7. Si se queda quieta 15 s, Processing repite la ayuda de ese momento (máximo 2 veces). Pulsar cero corta la bienvenida.
-8. El **botón de ayuda** (el de la izquierda, también con doble toque) repite qué hacer. Si está esperando, también dice dónde están las cosas. Mientras mide, dice «Llevas X de Y gramos»; si se pasó, «Te pasaste por X gramos».
+8. El **botón de ayuda** (el de la izquierda, también con doble toque) repite qué hacer según el momento. Los botones y dónde están las cosas solo se explican al comenzar. Mientras mide, dice «Llevas X de Y gramos»; si se pasó, «Te pasaste por X gramos».
 
 ### Estados del Arduino
 
@@ -37,13 +37,15 @@ Lector NFC (opcional) ──┤        │
 | ESPERANDO | Plataforma vacía (menos de 20 g) | `ESPERA` |
 | MIDIENDO | Hay peso y todavía cambia o falta llegar a la meta | `MIDIENDO` |
 | LISTO | Peso estable 2 s (y dentro de la meta ±10 g, si hay) | `PESO:xxx` |
-| PASADO | Más de 10 g sobre la meta | `PASADO` |
+| PASADO | Más de 10 g sobre la meta | `PASADO:30` (gramos que sobran) |
 
 ### Mensajes del Arduino a Processing
 
 | Mensaje | Qué hace Processing |
 |---|---|
-| `ESPERA`, `MIDIENDO`, `PASADO` | Cambia el estado y dice la frase |
+| `ESPERA`, `MIDIENDO` | Cambia el estado y dice la frase |
+| `FALTA:60` | Dice «Faltan sesenta gramos» (solo con meta, al menos 20 g de cambio y cada 3 s como mínimo) |
+| `PASADO:30` | Dice «Te pasaste. Quita treinta gramos» |
 | `META:100` / `META:0` | Muestra y dice la meta / la quita |
 | `PESO:250` | Muestra el número y dice «Este peso es…» |
 | `CERO` | Dice «Balanza en cero» |
