@@ -38,10 +38,10 @@ const bool MOSTRAR_PESO = false;             // true = imprime "G:xx.x" (gramos)
 
 // Tabla de tags: ID -> gramos de meta. Para saber el ID de cada tag, acércalo
 // (con USAR_NFC = true) y mira "TAG:xxxxxxxx" en el Monitor Serie; cópialo aquí.
-struct Tag { const char* uid; int gramos; };
+struct Tag { const char* uid; int gramos; const char* id; };   // id opcional (déjalo "" para que solo diga los gramos)
 const Tag TAGS[] = {
-  { "F5C97E05", 100 },                       // Ficha 1: 100 g
-  { "620493EE", 250 },                       // Ficha 2: 250 g
+  { "539A818F950001", 100, "" },           // Ficha A: meta de 100 g
+  { "539B818F950001", 150, "" },           // Ficha B: meta de 150 g
 };
 const int N_TAGS = sizeof(TAGS) / sizeof(TAGS[0]);
 
@@ -69,6 +69,7 @@ enum Estado { ESPERANDO, MIDIENDO, LISTO, PASADO };
 Estado estado = ESPERANDO;
 
 int meta = 0;                                // Meta en gramos (0 = sin ficha)
+int metaIndice = -1;                         // Posición en la tabla de la ficha que fijó la meta (-1 = ninguna)
 float pesoSimulado = 0;
 float pesoActual = 0;                        // Último peso leído
 float pesoRef = 0;                           // Peso de referencia para medir estabilidad
@@ -123,10 +124,15 @@ void errorSonoro() {                         // Error: tres pitidos muy graves
   }
 }
 
+// Margen de acierto: 6 % de la meta, entre 4 g y MARGEN_META (así una meta de 30 g no acepta de 20 a 40)
+float margenMeta() {
+  return constrain(meta * 0.06, 4.0, MARGEN_META);
+}
+
 // Mientras echan el ingrediente hacia la meta: el pitido se acelera y sube de tono
 // al acercarse, y pasa a tono continuo al entrar en el margen de la meta.
 void pitidoProgreso(float peso) {
-  if (peso >= meta - MARGEN_META) {
+  if (peso >= meta - margenMeta()) {
     sonidoTono(250, TONO_META);              // En la meta: tono continuo
     return;
   }
@@ -139,10 +145,12 @@ void pitidoProgreso(float peso) {
 }
 
 // Con meta: de vez en cuando manda cuánto falta para que Processing lo diga ("Faltan 60 gramos").
-// Solo habla si el faltante cambió al menos 20 g desde el último aviso, y no más de uno cada 3 s.
+// Solo habla si el faltante cambió al menos 20 g desde el último aviso (3 g cuando ya falta poco,
+// para sugerir con qué completar), y no más de uno cada 3 s.
 void anunciarFalta(float peso) {
   float faltante = meta - peso;
-  if (millis() - ultimoAnuncioFalta >= 3000 && fabs(faltante - faltanteAnunciado) >= 20.0) {
+  float paso = (faltante <= 20.0) ? 3.0 : 20.0;
+  if (millis() - ultimoAnuncioFalta >= 3000 && fabs(faltante - faltanteAnunciado) >= paso) {
     ultimoAnuncioFalta = millis();
     faltanteAnunciado = faltante;
     Serial.print("FALTA:");
@@ -176,15 +184,16 @@ void simularLlenado(int g) {
 // ---------------------------------------------------------------- FICHAS
 
 // Fija una meta nueva (solo si está esperando). La misma ficha de nuevo la cancela.
-void aplicarMeta(int g) {
+void aplicarMeta(int g, int indice, const char* id) {
   if (g <= 0) return;
   if (estado != ESPERANDO) {                 // Hay algo en la balanza: no se puede cambiar la meta
     beepTono(300, TONO_ERROR);
     Serial.println("AVISO:RETIRA");
     return;
   }
-  if (!SOLO_NFC && g == meta) {              // Misma ficha otra vez: cancela la meta (medida libre)
+  if (!SOLO_NFC && g == meta && indice == metaIndice) {              // Misma ficha otra vez: cancela la meta (medida libre)
     meta = 0;
+    metaIndice = -1;
     Serial.println("META:0");
     Serial.println("META_CANCELADA");        // Processing dice "Ya no tienes meta"
     beep(80);
@@ -193,8 +202,14 @@ void aplicarMeta(int g) {
     return;
   }
   meta = g;
+  metaIndice = indice;
   Serial.print("META:");
-  Serial.println(meta);
+  Serial.print(meta);
+  if (id[0] != '\0') {                        // Si la ficha tiene nombre: META:130:nombre
+    Serial.print(":");
+    Serial.print(id);
+  }
+  Serial.println();
   beep(150);                                 // Pitido corto: ficha leída
   if (SOLO_NFC) {
     delay(1500);                             // Pausa: "ahora echa el ingrediente"
@@ -221,7 +236,7 @@ void revisarTag() {
   Serial.println(uid);                       // Útil para copiar el ID a la tabla
   for (int i = 0; i < N_TAGS; i++) {
     if (uid.equals(TAGS[i].uid)) {
-      aplicarMeta(TAGS[i].gramos);
+      aplicarMeta(TAGS[i].gramos, i, TAGS[i].id);
       return;
     }
   }
@@ -245,6 +260,7 @@ void volverAEsperar() {
   estado = ESPERANDO;
   if (meta != 0) {
     meta = 0;
+    metaIndice = -1;
     Serial.println("META:0");
   }
   Serial.println("ESPERA");
@@ -337,7 +353,7 @@ void loop() {
     if (Serial.available()) {
       if (Serial.peek() == 't') {            // Tag simulado: t100
         Serial.read();
-        aplicarMeta(Serial.parseInt());
+        aplicarMeta(Serial.parseInt(), -1, "");
       } else {                               // Peso escrito a mano
         pesoSimulado = Serial.parseFloat();
       }
@@ -383,16 +399,16 @@ void loop() {
       break;
 
     case MIDIENDO:
-      if (meta > 0 && peso >= UMBRAL_RETIRO && peso <= meta + MARGEN_META) {
+      if (meta > 0 && peso >= UMBRAL_RETIRO && peso <= meta + margenMeta()) {
         pitidoProgreso(peso);                // Con meta: pitido que se acelera hacia la meta
-        if (peso < meta - MARGEN_META) anunciarFalta(peso);   // y dice cuánto falta
+        if (peso < meta - margenMeta()) anunciarFalta(peso);   // y dice cuánto falta
       } else if (meta == 0 && peso >= UMBRAL_RETIRO) {
         pitidoLibre(peso);                   // Sin meta: un tic cada 10 g
       }
       if (peso < UMBRAL_RETIRO) {            // Lo quitaron antes de terminar (la meta se conserva)
         estado = ESPERANDO;
         Serial.println("ESPERA");
-      } else if (meta > 0 && peso > meta + MARGEN_META) {
+      } else if (meta > 0 && peso > meta + margenMeta()) {
         estado = PASADO;                     // Se pasaron de la meta
         alertaPasado();
         Serial.print("PASADO:");             // Con cuánto se pasó de la meta: Processing dice cuánto quitar
@@ -402,7 +418,7 @@ void loop() {
         inicioEstable = millis();
       } else if (millis() - inicioEstable >= TIEMPO_ESTABLE) {
         // Estable 2 segundos. Con meta, solo vale si está cerca de ella.
-        if (meta == 0 || peso >= meta - MARGEN_META) {
+        if (meta == 0 || peso >= meta - margenMeta()) {
           estado = LISTO;
           pesoRef = peso;
           pitar();
@@ -425,7 +441,7 @@ void loop() {
     case PASADO:
       if (peso < UMBRAL_RETIRO) {            // Retiraron todo
         volverAEsperar();
-      } else if (peso <= meta + MARGEN_META - 3) {
+      } else if (peso <= meta + margenMeta() - 3) {
         empezarAMedir(peso);                 // Quitaron un poco y ya no se pasa
       }
       break;

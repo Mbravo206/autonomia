@@ -12,14 +12,14 @@ import processing.sound.*;
 final boolean SIMULAR = false;                // false cuando conectes el Arduino
 final String PUERTO = "COM3";                 // ← puerto del Arduino
 
-// Colores
-final color C_FONDO   = color(16, 18, 30);
-final color C_TEXTO  = color(240, 242, 250);
-final color C_SUAVE   = color(130, 137, 170);
-final color C_ESPERA  = color(120, 140, 255);   // azul violeta
-final color C_MIDE    = color(255, 184, 77);    // ámbar
-final color C_LISTO   = color(80, 220, 150);    // verde
-final color C_PASADO  = color(255, 90, 100);    // rojo
+// Colores: fondo crema y tonos suaves
+final color C_FONDO   = color(245, 236, 216);
+final color C_TEXTO   = color(58, 50, 44);
+final color C_SUAVE   = color(118, 106, 94);
+final color C_ESPERA  = color(160, 172, 196);   // azul grisáceo
+final color C_MIDE    = color(222, 170, 98);    // ámbar suave
+final color C_LISTO   = color(122, 182, 148);   // verde suave
+final color C_PASADO  = color(212, 126, 122);   // rosa suave
 
 Serial puerto;
 ArrayList<String> cola = new ArrayList<String>();   // Nombres de archivo en espera
@@ -30,6 +30,10 @@ final int ESPERA_RECORDATORIO = 15000;              // ms sin actividad antes de
 final int MAX_RECORDATORIOS = 2;                    // veces que repite antes de callar
 int ultimaActividad = 0;                            // millis() del último mensaje del Arduino
 int recordatorios = 0;
+PFont fTexto, fNum;                                 // Tipografías: texto y números grandes
+float progreso = 0, progresoObjetivo = 0;           // Avance hacia la meta (0 a 1), animado
+float[] barras = new float[48];                     // Alturas de las ondas de la voz
+int faltaActual = -1;                               // Gramos que faltan según el último aviso (-1 = no hay)
 
 // Estado de la interfaz
 String estado = "ESPERA";                     // ESPERA, MIDIENDO, LISTO o PASADO
@@ -41,9 +45,11 @@ int tiempoEstado = 0;                         // millis() al cambiar de estado
 boolean primeraEspera = true;                 // El ESPERA del arranque no corta la bienvenida
 
 void setup() {
-  size(900, 560);
+  size(1000, 640);
   smooth(8);
-  textFont(createFont("Arial", 32));
+  fTexto = createFont("Segoe UI", 32);        // Si no existe, Processing usa una fuente parecida
+  fNum = createFont("Segoe UI Black", 32);
+  textFont(fTexto);
   if (!SIMULAR) {
     printArray(Serial.list());                // Puertos disponibles
     puerto = new Serial(this, PUERTO, 9600);  // Al abrirlo, el Arduino se reinicia (y hace tare)
@@ -83,6 +89,7 @@ void draw() {
   }
 
   pesoAnim = lerp(pesoAnim, pesoObjetivo, 0.12);
+  progreso = lerp(progreso, progresoObjetivo, 0.1);
   dibujar();
 }
 
@@ -91,91 +98,117 @@ void draw() {
 void dibujar() {
   background(C_FONDO);
   color c = colorEstado();
+  float cx = width / 2.0, cy = 290, D = 300;
 
-  // Encabezado mínimo
-  textAlign(CENTER, CENTER);
+  // Título discreto
+  textFont(fTexto);
+  textAlign(LEFT, CENTER);
   fill(C_SUAVE);
-  textSize(14);
-  text("AUTONOMÍA  ·  Medidor", width / 2.0, 36);
+  textSize(16);
+  text("Medidor · Autonomía", 48, 44);
 
-  // Círculo central
-  float cx = width / 2.0, cy = 270;
-
-  // Anillo base
+  // Anillo fino
   noFill();
-  stroke(255, 25);
-  strokeWeight(14);
-  ellipse(cx, cy, 250, 250);
+  stroke(0, 16);
+  strokeWeight(6);
+  ellipse(cx, cy, D, D);
 
   strokeCap(ROUND);
   stroke(c);
+  strokeWeight(6);
   if (estado.equals("ESPERA")) {
     // Respira lento
-    float p = 0.5 + 0.5 * sin(millis() * 0.003);
-    strokeWeight(6 + 8 * p);
-    stroke(red(c), green(c), blue(c), 120 + 135 * p);
-    ellipse(cx, cy, 250, 250);
+    float p = 0.5 + 0.5 * sin(millis() * 0.002);
+    stroke(red(c), green(c), blue(c), 90 + 120 * p);
+    ellipse(cx, cy, D, D);
   } else if (estado.equals("MIDIENDO")) {
-    // Arco que gira
-    strokeWeight(14);
-    float a = millis() * 0.006;
-    arc(cx, cy, 250, 250, a, a + TWO_PI * 0.3);
-    arc(cx, cy, 250, 250, a + PI, a + PI + TWO_PI * 0.1);
+    if (meta > 0) {
+      // Con meta: el arco se llena hasta la meta
+      arc(cx, cy, D, D, -HALF_PI, -HALF_PI + TWO_PI * max(progreso, 0.02));
+    } else {
+      // Sin meta: un arco que gira
+      float a = millis() * 0.005;
+      arc(cx, cy, D, D, a, a + TWO_PI * 0.25);
+    }
   } else if (estado.equals("PASADO")) {
-    // Anillo rojo que parpadea
-    float p = 0.5 + 0.5 * sin(millis() * 0.02);
-    strokeWeight(14);
-    stroke(red(c), green(c), blue(c), 110 + 145 * p);
-    ellipse(cx, cy, 250, 250);
+    ellipse(cx, cy, D, D);
   } else {
     // Se completa el anillo al llegar a LISTO
     float t = constrain((millis() - tiempoEstado) / 600.0, 0, 1);
-    strokeWeight(14);
-    arc(cx, cy, 250, 250, -HALF_PI, -HALF_PI + TWO_PI * t);
+    arc(cx, cy, D, D, -HALF_PI, -HALF_PI + TWO_PI * t);
   }
   noStroke();
 
-  // Texto dentro del círculo
+  // Centro del anillo
+  textAlign(CENTER, CENTER);
   if (estado.equals("LISTO")) {
-    fill(C_TEXTO);
-    textSize(92);
-    text(round(pesoAnim), cx, cy - 12);
-    fill(c);
-    textSize(24);
-    text("gramos", cx, cy + 60);
+    numeroGrande(round(pesoAnim), "gramos", cx, cy);
   } else if (estado.equals("PASADO")) {
+    textFont(fTexto);
     fill(C_TEXTO);
-    textSize(40);
-    text("¡Te pasaste!", cx, cy - 12);
-    fill(c);
+    textSize(34);
+    text("te pasaste", cx, cy - 10);
+    fill(C_SUAVE);
     textSize(20);
-    text("meta: " + meta + " g", cx, cy + 36);
+    text("meta " + meta + " g", cx, cy + 32);
   } else if (estado.equals("MIDIENDO")) {
-    fill(C_TEXTO);
-    textSize(30);
-    text("midiendo", cx, cy - 8);
-    String puntos = "";
-    for (int i = 0; i < (millis() / 400) % 4; i++) puntos += ".";
-    fill(c);
-    text(puntos, cx, cy + 28);
-    if (meta > 0) {
-      fill(C_SUAVE);
-      textSize(16);
-      text("meta: " + meta + " g", cx, cy + 62);
+    if (meta > 0 && faltaActual > 0) {
+      numeroGrande(round(faltaActual / 10.0) * 10, "gramos por echar", cx, cy);
+    } else {
+      textFont(fTexto);
+      fill(C_TEXTO);
+      textSize(30);
+      text("midiendo", cx, cy - 6);
+      if (meta > 0) {
+        fill(C_SUAVE);
+        textSize(20);
+        text("meta " + meta + " g", cx, cy + 34);
+      }
     }
   } else {
-    fill(C_TEXTO);
-    textSize(30);
-    text(meta > 0 ? "meta: " + meta + " g" : "0 g", cx, cy - 8);
-    fill(C_SUAVE);
-    textSize(16);
-    text(meta > 0 ? "echa el ingrediente" : "acerca un tag o pon algo", cx, cy + 30);
+    if (meta > 0) {
+      numeroGrande(meta, "gramos de meta", cx, cy);
+    } else {
+      textFont(fTexto);
+      fill(C_TEXTO);
+      textSize(30);
+      text("listo para pesar", cx, cy - 6);
+      fill(C_SUAVE);
+      textSize(20);
+      text("pon la taza", cx, cy + 34);
+    }
   }
 
-  // Lo que se está diciendo
+  // Ondas de la voz: se mueven mientras habla
+  boolean habla = (sonando != null && millis() < finClip);
+  float bw = 8, gap = 6, total = barras.length * (bw + gap) - gap;
+  float x0 = cx - total / 2.0;
+  float yOnda = cy + D / 2 + 48;
+  for (int i = 0; i < barras.length; i++) {
+    float objetivo = habla ? 8 + 44 * noise(i * 0.35, millis() * 0.004) : 4;
+    barras[i] = lerp(barras[i], objetivo, 0.25);
+    fill(habla ? c : color(0, 22));
+    rect(x0 + i * (bw + gap), yOnda - barras[i] / 2, bw, barras[i], 4);
+  }
+
+  // Lo que se está diciendo, bajo las ondas
+  textFont(fTexto);
+  textAlign(CENTER, CENTER);
   fill(C_TEXTO);
   textSize(22);
-  text(frase, cx, 480);
+  text(frase, cx, yOnda + 56);
+}
+
+// Un número grande y delgado con su unidad debajo
+void numeroGrande(int n, String unidad, float cx, float cy) {
+  textFont(fNum);
+  fill(C_TEXTO);
+  textSize(112);
+  text(n, cx, cy - 14);
+  textFont(fTexto);
+  fill(C_SUAVE);
+  textSize(20);
+  text(unidad, cx, cy + 56);
 }
 
 color colorEstado() {
@@ -217,11 +250,19 @@ void procesar(String linea) {
     cambiar("MIDIENDO", "Espera, estoy midiendo");
     decir("midiendo.mp3");
   } else if (linea.startsWith("META:")) {
-    meta = int(linea.substring(5));
+    meta = int(split(linea.substring(5), ':')[0]);
     if (meta > 0) {
       cambiar("ESPERA", "Meta: " + meta + " gramos");
-      if (hay("meta_" + meta + ".mp3")) decir("meta_" + meta + ".mp3");
-      else decir("espera.mp3");
+      if (hay("meta_" + meta + ".mp3")) {
+        decir("meta_" + meta + ".mp3");              // Clip completo para ese peso, si existe
+      } else {                                        // Cualquier otro peso: "Ficha de" + número + "gramos"
+        ArrayList<String> clips = new ArrayList<String>();
+        clips.add(archivo("ficha_de"));
+        agregarNumero(clips, meta);
+        clips.add(archivo("gramos"));
+        clips.add(archivo("cancelar_ficha"));
+        decir(clips.toArray(new String[0]));
+      }
     }
   } else if (linea.equals("BOTON_CERO")) {
     frase = "Botón de cero. Púlsalo de nuevo";
@@ -254,11 +295,19 @@ void procesar(String linea) {
   } else if (linea.startsWith("FALTA:")) {
     int falta = int(linea.substring(6));
     if (estado.equals("MIDIENDO") && falta > 0) {
+      faltaActual = falta;
+      if (meta > 0) progresoObjetivo = constrain((meta - falta) / (float) meta, 0, 1);
       ArrayList<String> clips = new ArrayList<String>();
-      clips.add(archivo("faltan"));
-      agregarNumero(clips, falta);
-      clips.add(archivo("gramos"));
-      frase = "Faltan " + round(falta / 10.0) * 10 + " gramos";
+      if (falta < 20) {                              // Falta poco: sugiere con qué completar
+        clips.add(archivo("te_falta_poco"));
+        clips.add(archivo(cucharaPara(falta)));
+        frase = "Te falta poco. " + textoCuchara(falta);
+      } else {
+        clips.add(archivo("faltan"));
+        agregarNumero(clips, falta);
+        clips.add(archivo("gramos"));
+        frase = "Faltan " + round(falta / 10.0) * 10 + " gramos";
+      }
       decir(clips.toArray(new String[0]));
     }
   } else if (linea.equals("PASADO") || linea.startsWith("PASADO:")) {
@@ -284,6 +333,23 @@ void procesar(String linea) {
   }
 }
 
+// Con qué completar lo que falta (aproximado: 1 cucharada = 10 g, 1 cucharadita = 3 g)
+String cucharaPara(int falta) {
+  if (falta >= 15) return "cuch_2";
+  if (falta >= 7) return "cuch_1";
+  if (falta >= 3) return "cuch_tsp";
+  if (falta >= 2) return "cuch_media";
+  return "cuch_casi";
+}
+
+String textoCuchara(int falta) {
+  if (falta >= 15) return "Échale dos cucharadas";
+  if (falta >= 7) return "Échale una cucharada";
+  if (falta >= 3) return "Échale una cucharadita";
+  if (falta >= 2) return "Échale media cucharadita";
+  return "Ya casi llegas";
+}
+
 // La ayuda depende del momento en que está la persona
 String archivoAyuda() {
   if (estado.equals("MIDIENDO")) return "ayuda_midiendo.wav";
@@ -297,6 +363,8 @@ void cambiar(String nuevo, String texto) {
   frase = texto;
   tiempoEstado = millis();
   if (!nuevo.equals("LISTO")) pesoObjetivo = 0;
+  progresoObjetivo = (nuevo.equals("LISTO") || nuevo.equals("PASADO")) ? 1 : 0;
+  faltaActual = -1;
 }
 
 // Corta lo que suena y arma una frase nueva

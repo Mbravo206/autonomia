@@ -113,7 +113,14 @@ En Processing, con `SIMULAR = true` las teclas 1 a 9 simulan los mensajes (esper
 
 ### Fichas NFC
 
-Con `USAR_NFC = true`, acerca la ficha y copia el `TAG:xxxxxxxx` del Monitor Serie a la tabla `TAGS` con su peso. Hoy: `F5C97E05` = 100 g y `620493EE` = 250 g.
+Con `USAR_NFC = true`, acerca la ficha y copia el `TAG:xxxxxxxx` del Monitor Serie a la tabla `TAGS` con su peso.
+
+| Ficha | Código | Qué hace |
+|---|---|---|
+| Ficha A | `539A818F950001` | Meta de 100 g |
+| Ficha B | `539B818F950001` | Meta de 150 g |
+
+Las fichas solo fijan la meta; la ayuda y el cero los dan los botones. Cualquier otra ficha que se lea dice «ficha no reconocida». Para añadir más metas, agrégalas a la tabla `TAGS` con su código y sus gramos.
 
 ### Calibración
 
