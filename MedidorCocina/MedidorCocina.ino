@@ -40,8 +40,8 @@ const bool MOSTRAR_PESO = false;             // true = imprime "G:xx.x" (gramos)
 // (con USAR_NFC = true) y mira "TAG:xxxxxxxx" en el Monitor Serie; cópialo aquí.
 struct Tag { const char* uid; int gramos; const char* id; };   // id opcional (déjalo "" para que solo diga los gramos)
 const Tag TAGS[] = {
-  { "539A818F950001", 100, "" },           // Ficha A: meta de 100 g
-  { "539B818F950001", 50, "" },            // Ficha B: meta de 50 g
+  { "53A3818F950001", 100, "" },           // Ficha A: meta de 100 g
+  { "53A2818F950001", 50, "" },            // Ficha B: meta de 50 g
 };
 const int N_TAGS = sizeof(TAGS) / sizeof(TAGS[0]);
 

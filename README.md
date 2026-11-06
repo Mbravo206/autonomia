@@ -117,8 +117,8 @@ Con `USAR_NFC = true`, acerca la ficha y copia el `TAG:xxxxxxxx` del Monitor Ser
 
 | Ficha | Código | Qué hace |
 |---|---|---|
-| Ficha A | `539A818F950001` | Meta de 100 g |
-| Ficha B | `539B818F950001` | Meta de 50 g |
+| Ficha A | `53A3818F950001` | Meta de 100 g |
+| Ficha B | `53A2818F950001` | Meta de 50 g |
 
 Las fichas solo fijan la meta; la ayuda y el cero los dan los botones. Cualquier otra ficha que se lea dice «ficha no reconocida». Para añadir más metas, agrégalas a la tabla `TAGS` con su código y sus gramos.
 
