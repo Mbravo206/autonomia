@@ -4,6 +4,18 @@ Estación **Medidor** del proyecto de Taller IV. Una persona ciega o con baja vi
 
 El sistema se oye, no se ve. La pantalla de Processing es solo para el equipo.
 
+## Abrirlo rápido (en cualquier Windows de 64 bits)
+
+No necesitas instalar Processing ni Java.
+
+1. **Antes, una sola vez:** sube `MedidorCocina/MedidorCocina.ino` al Arduino UNO con el Arduino IDE (plataforma vacía). El código queda guardado en el Arduino.
+2. Descarga `Medidor-Windows.zip` de la sección *Releases* del repositorio (o copia la carpeta `Ejecutable/`) y descomprímelo.
+3. Conecta el Arduino por USB y espera el pitido de arranque.
+4. Doble clic en `medidorprocessing.exe`. No le cambies el nombre: renombrado no abre.
+5. Si la pantalla dice «Conecta el Arduino», revisa el cable: el programa lo busca solo cada 3 s. Si Windows pregunta por el firewall o por permisos, acepta.
+
+Sin Arduino a mano, ábrelo con Processing en modo simulación (abajo, `SIMULAR = true`).
+
 ## Cómo funciona
 
 ```
@@ -140,7 +152,6 @@ Las fichas solo fijan la meta; la ayuda y el cero los dan los botones. Cualquier
 | `Evaluacion-Heuristica-Medidor.xlsx` | Evaluación heurística de usabilidad |
 | `PruebaCelda/` | Comprueba que el HX711 y la celda funcionan |
 | `PruebaBuzzer/` | Comprueba el buzzer (pasivo o activo) |
-| `audios_originales/` | Copia de los primeros audios en mp3 |
 | `_archivo/` | Copias viejas y zips |
 
 Los audios se buscan en `.mp3` y, si no están, en `.wav`. Para usar tu propia voz, copia un `.mp3` con el mismo nombre en `data/`.

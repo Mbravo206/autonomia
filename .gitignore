@@ -1,6 +1,13 @@
 # Notas y documentos de trabajo que no son parte del Medidor
 Claude outputs/
 
+# Se quedan solo en la carpeta local, no en GitHub
+audios_originales/
+PruebaBotones/
+
+# Ejecutable exportado (va como Release en GitHub, no en el repo)
+Ejecutable/
+
 # Copia vieja del sketch, anterior a la interfaz nueva
 /medidorprocessing.zip
 
