@@ -65,6 +65,12 @@ const int TONO_LISTO  = 2600;                // Pitido largo de listo
 const int TONO_PASADO = 700;                 // Te pasaste (grave, rápido)
 const int TONO_ERROR  = 350;                 // Error (muy grave)
 
+// Un botón cuenta una sola vez por pulsación: mantenerlo apretado no lo repite
+// (antes, dejarlo apretado medio segundo valía como el segundo toque y ejecutaba el cero).
+struct Boton { int pin; bool apretado; bool lectura; unsigned long cambio; };
+Boton botonCero  = { BOTON_CERO,  false, false, 0 };
+Boton botonAyuda = { BOTON_AYUDA, false, false, 0 };
+
 enum Estado { ESPERANDO, MIDIENDO, LISTO, PASADO };
 Estado estado = ESPERANDO;
 
@@ -80,7 +86,6 @@ unsigned long ultimoPitido = 0;              // Para el pitido progresivo
 unsigned long ultimoAnuncioFalta = 0;        // Cuándo se dijo por última vez cuánto falta
 float faltanteAnunciado = 0;                 // Cuánto faltaba en ese último anuncio
 unsigned long ultimoDebug = 0;
-unsigned long ultimoBoton = 0;               // Para ignorar rebotes de los botones
 unsigned long anuncioCero = 0;               // Cuándo se anunció el botón de cero (0 = no anunciado)
 unsigned long anuncioAyuda = 0;              // Cuándo se anunció el botón de ayuda
 unsigned long ultimaLectura = 0;             // Cuándo respondió la celda por última vez
@@ -273,10 +278,24 @@ void avisarCelda() {
   errorSonoro();
 }
 
+// true solo en el momento en que se aprieta, con 30 ms de antirrebote
+bool recienPulsado(Boton &b) {
+  bool lectura = digitalRead(b.pin) == LOW;
+  if (lectura != b.lectura) {
+    b.lectura = lectura;
+    b.cambio = millis();
+  }
+  if (millis() - b.cambio >= 30 && b.lectura != b.apretado) {
+    b.apretado = b.lectura;
+    return b.apretado;
+  }
+  return false;
+}
+
 void revisarBotones() {
-  if (millis() - ultimoBoton < 500) return;  // Evita lecturas dobles
-  if (digitalRead(BOTON_CERO) == LOW) {
-    ultimoBoton = millis();
+  bool cero = recienPulsado(botonCero);
+  bool ayuda = recienPulsado(botonAyuda);
+  if (cero) {
     beepTono(60, TONO_CERO);                 // Clic inmediato: la persona sabe que el botón se pulsó
     if (CONFIRMAR_BOTONES && (anuncioCero == 0 || millis() - anuncioCero > VENTANA_CONFIRMAR)) {
       anuncioCero = millis();                // Primer toque: dice qué es el botón
@@ -297,8 +316,7 @@ void revisarBotones() {
     estado = ESPERANDO;
     beepTono(200, TONO_CERO);
     Serial.println("CERO");
-  } else if (digitalRead(BOTON_AYUDA) == LOW) {
-    ultimoBoton = millis();
+  } else if (ayuda) {
     beepTono(80, TONO_AYUDA);
     bool midiendo = (estado == MIDIENDO || estado == PASADO);
     if (CONFIRMAR_BOTONES && !midiendo && (anuncioAyuda == 0 || millis() - anuncioAyuda > VENTANA_CONFIRMAR)) {
@@ -433,9 +451,9 @@ void loop() {
     case LISTO:
       if (peso < UMBRAL_RETIRO) {            // Retiraron el ingrediente
         volverAEsperar();
-      } else if (fabs(peso - pesoRef) > CAMBIO_LISTO) {
-        empezarAMedir(peso);                 // Cambiaron el peso sin retirar: medir de nuevo
-      }
+      } else if (fabs(peso - pesoRef) > CAMBIO_LISTO || (meta > 0 && peso > meta + margenMeta())) {
+        empezarAMedir(peso);                 // Cambiaron el peso o ya se pasa de la meta: medir de nuevo
+      }                                      // (si se pasa, MIDIENDO lo detecta y avisa "te pasaste")
       break;
 
     case PASADO:

@@ -1,0 +1,9 @@
+# Notas y documentos de trabajo que no son parte del Medidor
+Claude outputs/
+
+# Copia vieja del sketch, anterior a la interfaz nueva
+/medidorprocessing.zip
+
+# Builds y exportaciones de Processing
+medidorprocessing/application.*/
+medidorprocessing/out/

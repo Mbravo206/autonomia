@@ -21,12 +21,12 @@ Lector NFC (opcional) ──┤        │
 
 1. Escucha la bienvenida al abrir el programa.
 2. Pone la taza vacía y pulsa **dos veces** el **botón de cero** (el de la derecha, al frente): el primer toque dice qué botón es y el segundo pone la balanza en cero, descontando la taza.
-3. (Opcional) Acerca una **ficha** NFC para elegir un peso (100 g o 250 g). Con la misma ficha otra vez se cancela la meta.
+3. (Opcional) Acerca una **ficha** NFC para elegir un peso (100 g o 50 g). Con la misma ficha otra vez se cancela la meta.
 4. Echa el ingrediente poco a poco.
    - Con ficha: el pitido se acelera y sube de tono hasta un tono continuo en la meta.
    - Sin ficha: un tic corto cada 10 g.
 5. Se queda quieto 2 s: pitido largo y la voz dice el peso.
-6. Con meta, mientras llena, dice cuánto falta («Faltan 60 gramos»). Si se pasa (más de 10 g): tres pitidos graves y «Te pasaste. Quita 30 gramos».
+6. Con meta, mientras llena, dice cuánto falta («Faltan 60 gramos»). Si se pasa del margen de la meta (6 % de la meta, entre 4 y 10 g): tres pitidos graves y «Te pasaste. Quita 30 gramos».
 7. Si se queda quieta 15 s, Processing repite la ayuda de ese momento (máximo 2 veces). Pulsar cero corta la bienvenida.
 8. El **botón de ayuda** (el de la izquierda, también con doble toque) repite qué hacer según el momento. Los botones y dónde están las cosas solo se explican al comenzar. Mientras mide, dice «Llevas X de Y gramos»; si se pasó, «Te pasaste por X gramos».
 
@@ -36,8 +36,8 @@ Lector NFC (opcional) ──┤        │
 |---|---|---|
 | ESPERANDO | Plataforma vacía (menos de 20 g) | `ESPERA` |
 | MIDIENDO | Hay peso y todavía cambia o falta llegar a la meta | `MIDIENDO` |
-| LISTO | Peso estable 2 s (y dentro de la meta ±10 g, si hay) | `PESO:xxx` |
-| PASADO | Más de 10 g sobre la meta | `PASADO:30` (gramos que sobran) |
+| LISTO | Peso estable 2 s (y dentro del margen de la meta, si hay) | `PESO:xxx` |
+| PASADO | Por encima del margen de la meta (6 %, entre 4 y 10 g) | `PASADO:30` (gramos que sobran) |
 
 ### Mensajes del Arduino a Processing
 
@@ -95,7 +95,7 @@ Si el número baja al poner peso, intercambia A+ con A−.
 1. Plataforma **vacía**, conecta el Arduino por USB y sube `MedidorCocina/MedidorCocina.ino`. Librerías: **HX711** (Bogdan Necula) y **MFRC522** (Miguel Balboa).
 2. Espera el pitido de arranque (ahí toma el cero).
 3. Cierra el Monitor Serie del Arduino IDE.
-4. Abre `medidorprocessing/MedidorProcessing.pde` con `SIMULAR = false` y el `PUERTO` correcto (librería **Sound**).
+4. Abre `medidorprocessing/MedidorProcessing.pde` con `SIMULAR = false` (librería **Sound**). El puerto se elige solo.
 5. Pon la taza y pulsa dos veces el botón de cero (primer toque: dice qué es; segundo: lo ejecuta).
 
 ### Interruptores del código (arriba de `MedidorCocina.ino`)
@@ -109,7 +109,7 @@ Si el número baja al poner peso, intercambia A+ con A−.
 | `FACTOR` | Calibración de la balanza (hoy 1124) |
 | `BUZZER_PASIVO` | `false` si el buzzer es activo |
 
-En Processing, con `SIMULAR = true` las teclas 1 a 9 simulan los mensajes (espera, midiendo, pesos, meta, pasado, ayuda, cero). Con cualquier modo, las teclas `+` y `-` hacen la voz más rápida o más lenta (0.8 a 1.6).
+En Processing, con `SIMULAR = true` las teclas 0 a 9 simulan los mensajes (espera, midiendo, pesos, meta, falta, pasado, ayuda, cero). Con cualquier modo, las teclas `+` y `-` hacen la voz más rápida o más lenta (0.8 a 1.6).
 
 ### Fichas NFC
 
@@ -144,6 +144,15 @@ Las fichas solo fijan la meta; la ayuda y el cero los dan los botones. Cualquier
 | `_archivo/` | Copias viejas y zips |
 
 Los audios se buscan en `.mp3` y, si no están, en `.wav`. Para usar tu propia voz, copia un `.mp3` con el mismo nombre en `data/`.
+
+La interfaz sigue el design system AUTONOMÍA (componente InterfazMedidor). Sus fuentes, Atkinson Hyperlegible y JetBrains Mono (licencia OFL), están en `medidorprocessing/data/` y viajan con la carpeta: no hay que instalarlas. La tecla `T` cambia entre tema oscuro y claro.
+
+### Al pasar el proyecto a otro computador
+
+- Copia la carpeta completa, con `medidorprocessing/data/` (audios y fuentes).
+- Instala Processing 4 con la librería **Sound**, y el Arduino IDE con **HX711** y **MFRC522**.
+- El puerto del Arduino se busca solo (`PUERTO = ""`). Si un puerto no contesta en 8 s (por ejemplo, uno de Bluetooth), prueba el siguiente. Si no hay Arduino o se desconecta, la pantalla dice «Conecta el Arduino» y lo vuelve a intentar cada 3 s. Si elige un puerto equivocado, escribe el correcto en `PUERTO`; la consola de Processing lista los disponibles al arrancar.
+- `medidorprocessing.zip` es una copia anterior a la interfaz nueva: no la uses.
 
 ## Si algo falla
 
