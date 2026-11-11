@@ -1,16 +1,23 @@
-# Notas y documentos de trabajo que no son parte del Medidor
+# Notas y documentos de trabajo que no son parte del código
 Claude outputs/
 
 # Se quedan solo en la carpeta local, no en GitHub
-audios_originales/
-PruebaBotones/
+medidor/audios_originales/
+medidor/PruebaBotones/
 
-# Ejecutable exportado (va como Release en GitHub, no en el repo)
-Ejecutable/
+# Ejecutable exportado del Medidor (pesa más de 300 MB; va como Release, no en el repo)
+medidor/Ejecutable/
 
 # Copia vieja del sketch, anterior a la interfaz nueva
-/medidorprocessing.zip
+medidor/medidorprocessing.zip
 
 # Builds y exportaciones de Processing
-medidorprocessing/application.*/
-medidorprocessing/out/
+application.*/
+out/
+
+# Python
+__pycache__/
+
+# Sistema
+Thumbs.db
+.DS_Store
