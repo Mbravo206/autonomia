@@ -29,8 +29,18 @@ Cada carpeta tiene su propio README con cómo montarla, cómo correrla y qué ha
 ## Por dónde empezar
 
 - **Medidor:** en Windows no hace falta instalar nada: hay un ejecutable. Mira «Abrirlo rápido» en [`medidor/README.md`](medidor/README.md).
-- **Organización:** Python 3 con `pyserial` y `pyttsx3`, en Windows. Detalle en [`organizacion/README.md`](organizacion/README.md).
+- **Organización:** Python 3 con `pyserial`, en Windows. Detalle en [`organizacion/README.md`](organizacion/README.md).
 - **Cocina:** Processing 4 con la librería Minim. Detalle en [`cocina/README.md`](cocina/README.md).
+
+## Voz
+
+Las tres estaciones hablan con la misma voz: Microsoft Sabina (español), a velocidad −1, pregrabada en WAV. Así suenan igual en cualquier computador, sin depender de las voces que tenga instaladas.
+
+Los textos de Cocina y Organización están en [`voz/textos.json`](voz/textos.json). Para cambiar una frase, edítala ahí y corre, desde la raíz del repositorio:
+
+```
+powershell -ExecutionPolicy Bypass -File voz\generar_voces.ps1
+```
 
 ## Diseño
 

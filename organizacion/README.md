@@ -36,8 +36,8 @@ Cinco ingredientes: yogurt, granola, frutos secos, fresas y arándanos. Las posi
 
 ## Cómo ponerlo en marcha
 
-1. Instala **Python 3** y las librerías: `pip install pyserial pyttsx3`.
-2. Necesita **Windows** (usa `winsound`) y una **voz en español** instalada en el sistema.
+1. Instala **Python 3** y la librería: `pip install pyserial`.
+2. Necesita **Windows** (usa `winsound`, que ya viene con Python). La voz va pregrabada en `audios/`, así que no hace falta tener ninguna voz instalada.
 3. Conecta el Arduino por USB y mira su puerto en el Administrador de dispositivos.
 4. En `audio_perfait.py`, cambia `PUERTO` si no es `COM4`. La velocidad es `BAUDIOS = 115200`.
 5. Ejecuta `python audio_perfait.py`. Para terminar, `Ctrl + C`.
@@ -47,6 +47,9 @@ Cinco ingredientes: yogurt, granola, frutos secos, fresas y arándanos. Las posi
 | Archivo | Contenido |
 |---|---|
 | `audio_perfait.py` | Voz y sonidos de la estación |
+| `audios/` | La voz de la estación: bienvenida, ingredientes (`ing_*.wav`), posiciones (`pos_1` a `pos_5`), `levanta`, `correcto`, `incorrecto` y `completado` |
+
+La voz es la misma del Medidor (Microsoft Sabina). Para cambiar una frase, edita `voz/textos.json` en la raíz del repositorio y corre `voz/generar_voces.ps1`.
 
 ## Por completar por Sara
 

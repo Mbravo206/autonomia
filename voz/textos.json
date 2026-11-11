@@ -1,0 +1,26 @@
+{
+  "cocina/cocina/data": {
+    "bienvenida": "Bienvenido a la estación de cocina. Esta es la última estación del recorrido, donde prepararás tu propio bol de granola con yogur y fruta. Frente a ti hay una mesa. Sobre ella encontrarás una caja redonda. No toques su parte de adelante: lleva tus manos directamente a la parte de arriba de la caja. Allí está el plato donde prepararás tu bol. Alrededor de la caja hay cuatro caminos, cada uno con una textura diferente, que te llevarán a los alimentos. Al inicio de cada camino encontrarás papel aluminio, que te indica dónde empieza. Cuando termine este audio, los cuatro caminos se activarán. Al tocar cada uno, escucharás el nombre del alimento al que te lleva. Puedes regresar a la caja siguiendo el mismo camino para dejar los ingredientes en tu plato.",
+    "yogur": "Este será el camino que te llevará al yogur griego. Es un camino de fomi moldeable.",
+    "granola": "Este será el camino que te llevará a la granola. Es un camino de algodón.",
+    "fresas": "Este será el camino que te llevará a las fresas. Es un camino de palos de balso.",
+    "arandanos": "Este será el camino que te llevará a los arándanos. Es un camino de limpiapipas."
+  },
+  "organizacion/audios": {
+    "bienvenida": "Bienvenido a la estación de organización. Puedes explorar los vasos con calma para reconocerlos y sentir sus espacios. No es necesario hacerlo rápido. Cuando estés listo, acerca un vaso al lector para conocer la posición donde debe ir. Después lleva el vaso con calma hacia la base. No arrastres el vaso. Levántalo y colócalo suavemente sobre el espacio. Dos sonidos cortos significan correcto. Un sonido diferente significa que debes intentar nuevamente. Puedes comenzar cuando estés listo.",
+    "ing_yogurt": "Yogur.",
+    "ing_granola": "Granola.",
+    "ing_frutos_secos": "Frutos secos.",
+    "ing_fresas": "Fresas.",
+    "ing_arandanos": "Arándanos.",
+    "pos_1": "Debe ir en la posición uno.",
+    "pos_2": "Debe ir en la posición dos.",
+    "pos_3": "Debe ir en la posición tres.",
+    "pos_4": "Debe ir en la posición cuatro.",
+    "pos_5": "Debe ir en la posición cinco.",
+    "levanta": "Levanta el vaso y colócalo suavemente sobre el espacio indicado.",
+    "correcto": "Correcto. Continúa con el siguiente vaso.",
+    "incorrecto": "Incorrecto. Intenta nuevamente.",
+    "completado": "Excelente. Has completado correctamente la organización del parfait."
+  }
+}

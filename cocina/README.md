@@ -18,10 +18,10 @@ Contacto 1..4 ── Makey Makey ── USB (teclado) ── Processing ── a
 
 | Flecha | Audio | Dice |
 |---|---|---|
-| Arriba | `yogur.wav` | Yogur |
-| Abajo | `granola.wav` | Granola |
-| Izquierda | `fresas.wav` | Fresas |
-| Derecha | `arandanos.wav` | Arándanos |
+| Arriba | `yogur.wav` | El camino al yogur griego, de fomi moldeable |
+| Abajo | `granola.wav` | El camino a la granola, de algodón |
+| Izquierda | `fresas.wav` | El camino a las fresas, de palos de balso |
+| Derecha | `arandanos.wav` | El camino a los arándanos, de limpiapipas |
 
 3. Si deja el dedo sostenido, el audio no se reinicia.
 4. Si toca otro contacto, el audio anterior se corta y suena el nuevo.
@@ -42,6 +42,8 @@ Contacto 1..4 ── Makey Makey ── USB (teclado) ── Processing ── a
 | `cocina/data/yogur.wav`, `granola.wav`, `fresas.wav`, `arandanos.wav` | Un audio por ingrediente |
 
 Los audios deben estar en la carpeta `cocina/data/` junto al `.pde`, con esos nombres.
+
+La voz es la misma del Medidor (Microsoft Sabina). Para cambiar una frase, edita `voz/textos.json` en la raíz del repositorio y corre `voz/generar_voces.ps1`.
 
 ## Por completar por Shara y Daniela
 

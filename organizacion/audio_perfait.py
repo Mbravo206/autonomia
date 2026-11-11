@@ -1,46 +1,31 @@
 
+import os
 import serial
 import time
-import pyttsx3
 import winsound
 
 PUERTO = "COM4"
 BAUDIOS = 115200
 
+# La voz es la misma del Medidor (Microsoft Sabina, velocidad -1), pregrabada en la
+# carpeta "audios". Así suena igual en cualquier Windows, tenga o no esa voz instalada.
+# Los textos y el generador están en voz/ en la raíz del repositorio.
+AUDIOS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "audios")
 
-def hablar(texto):
+
+def hablar(clip, texto):
 
     print("VOZ:", texto)
 
     try:
-        voz = pyttsx3.init()
-
-        voz.setProperty("rate", 150)
-        voz.setProperty("volume", 1.0)
-
-        for voice in voz.getProperty("voices"):
-
-            nombre = str(voice.name).lower()
-            idiomas = str(voice.languages).lower()
-
-            if (
-                "spanish" in nombre
-                or "español" in nombre
-                or "es-" in idiomas
-                or "es_" in idiomas
-            ):
-                voz.setProperty("voice", voice.id)
-                break
-
-        voz.say(texto)
-        voz.runAndWait()
-
-        voz.stop()
-        del voz
+        winsound.PlaySound(
+            os.path.join(AUDIOS, clip + ".wav"),
+            winsound.SND_FILENAME | winsound.SND_NODEFAULT
+        )
 
     except Exception as error:
 
-        print("ERROR DE VOZ:", error)
+        print("ERROR DE VOZ:", clip, error)
 
 
 def sonido_correcto():
@@ -74,6 +59,7 @@ print("--------------------------------")
 
 
 hablar(
+    "bienvenida",
     "Bienvenido a la estación de organización. "
     "Puedes explorar los vasos con calma para reconocerlos "
     "y sentir sus espacios. "
@@ -130,40 +116,28 @@ while True:
                 posicion
             )
 
-            posiciones = {
-                "1": "uno",
-                "2": "dos",
-                "3": "tres",
-                "4": "cuatro",
-                "5": "cinco"
+            # Audio de cada ingrediente (ing_*.wav) y de cada posición (pos_1 a pos_5)
+            ingredientes = {
+                "YOGURT": "ing_yogurt",
+                "GRANOLA": "ing_granola",
+                "FRUTOS SECOS": "ing_frutos_secos",
+                "FRESAS": "ing_fresas",
+                "ARANDANOS": "ing_arandanos"
             }
 
-            nombres = {
-                "YOGURT": "Yogurt",
-                "GRANOLA": "Granola",
-                "FRUTOS SECOS": "Frutos secos",
-                "FRESAS": "Fresas",
-                "ARANDANOS": "Arándanos"
-            }
+            if ingrediente_actual in ingredientes:
+                hablar(
+                    ingredientes[ingrediente_actual],
+                    ingrediente_actual
+                )
 
-            posicion_texto = posiciones.get(
-                posicion,
-                posicion
-            )
-
-            nombre = nombres.get(
-                ingrediente_actual,
-                ingrediente_actual
+            hablar(
+                "pos_" + posicion,
+                "Debe ir en la posición " + posicion + "."
             )
 
             hablar(
-                nombre
-                + ". Debe ir en la posición "
-                + posicion_texto
-                + "."
-            )
-
-            hablar(
+                "levanta",
                 "Levanta el vaso "
                 "y colócalo suavemente "
                 "sobre el espacio indicado."
@@ -174,6 +148,7 @@ while True:
             sonido_correcto()
 
             hablar(
+                "correcto",
                 "Correcto. "
                 "Continúa con el siguiente vaso."
             )
@@ -183,6 +158,7 @@ while True:
             sonido_incorrecto()
 
             hablar(
+                "incorrecto",
                 "Incorrecto. "
                 "Intenta nuevamente."
             )
@@ -190,6 +166,7 @@ while True:
         elif "PARFAIT COMPLETADO" in linea:
 
             hablar(
+                "completado",
                 "Excelente. "
                 "Has completado correctamente "
                 "la organización del parfait."
